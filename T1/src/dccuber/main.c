@@ -18,6 +18,8 @@ int main(int argc, char const *argv[])
   pid_t factory_pid;
   pid_t delivery_pid;
   pid_t traffic_light_pid;
+  int status;  
+  int retval;
 
   printf("Leyendo el archivo %s...\n", filename);
   printf("- Lineas en archivo: %i\n", data_in->len);
