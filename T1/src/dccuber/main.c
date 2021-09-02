@@ -39,7 +39,7 @@ int main(int argc, char const *argv[])
       if (delivery_pid == 0)
       {
         // We have to exec everything in delivery
-        int const *argv[] = {atoi(data_in->lines[0][0]), atoi(data_in->lines[0][1]), atoi(data_in->lines[0][2]), atoi(data_in->lines[0][3]), NULL
+        int const *argv[] = {atoi(data_in->lines[0][0]), atoi(data_in->lines[0][1]), atoi(data_in->lines[0][2]), atoi(data_in->lines[0][3]), NULL}
       {
         // Factory
       }
