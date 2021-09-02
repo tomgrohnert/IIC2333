@@ -14,7 +14,6 @@ int main(int argc, char const *argv[])
   InputFile *data_in = read_file(filename);
   int number_of_deliveries;
   int time_of_creation;
-  int distance_previous_light;
   pid_t factory_pid;
   pid_t delivery_pid;
   pid_t traffic_light_pid;
@@ -39,8 +38,10 @@ int main(int argc, char const *argv[])
       if (delivery_pid == 0)
       {
         // We have to exec everything in delivery
-        int const *argv[] = {atoi(data_in->lines[0][0]), atoi(data_in->lines[0][1]), atoi(data_in->lines[0][2]), atoi(data_in->lines[0][3]), NULL}
-      {
+        char const *argv[] = {data_in->lines[0][0], data_in->lines[0][1], data_in->lines[0][2], data_in->lines[0][3], NULL};
+        execlp("../repartidor/main.c", argv);
+        exit(retval);
+      } else {
         // Factory
       }
       
@@ -53,8 +54,8 @@ int main(int argc, char const *argv[])
       traffic_light_pid = fork();
       if (traffic_light_pid == 0)
       {
-        int const *argv[] = {atoi(data_in->lines[1][i+2]), NULL}; // Entregar los valores para cada semaforo
-        exec("../semaforo/main.c", argv)
+        char const *argv[] = {data_in->lines[1][i+2], NULL}; // Entregar los valores para cada semaforo
+        execlp("../semaforo/main.c", argv);
         exit(retval);
       } else
       {
