@@ -44,7 +44,8 @@ int main(int argc, char const *argv[])
       if (delivery_pid == 0)
       {
         // We have to exec everything in delivery
-        //exec("../repartidor/main.c")
+        // exec("../repartidor/main.c")
+        // exit(retval); /* child exits with user-provided return code */
       } else
       {
         // Factory
@@ -69,8 +70,8 @@ int main(int argc, char const *argv[])
         {
           distance_previous_light = 0;
         }
-        
-        //exec("../semaforo/main.c", atoi(data_in->lines[1][i+2]), atoi(data_in->lines[0][i]), distance_previous_light)
+        //int const *argv[] = {atoi(data_in->lines[1][i+2]), atoi(data_in->lines[0][i]), distance_previous_light, NULL}; // Entregar los valores para cada semaforo
+        //exec("../semaforo/main.c", argv)
       } else
       {
         //parent wait for this traffic light to change light
