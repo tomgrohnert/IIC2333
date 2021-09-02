@@ -25,44 +25,68 @@ int main(int argc, char const *argv[])
   printf("- Contenido del archivo:\n");
   printf("veamos, %i \n", data_in->len);
 
+
   factory_pid = fork();
   if (factory_pid == 0)
   {
     //This is the creation of delivery
     number_of_deliveries = atoi(data_in->lines[1][1]);
     time_of_creation = atoi(data_in->lines[1][0]);
-    for (int i = 0; i < number_of_deliveries; i++)
+    for (int i = 0; i < 5; i++)
     {
       sleep(time_of_creation);
       delivery_pid = fork();
       if (delivery_pid == 0)
       {
         // We have to exec everything in delivery
-        char const *argv[] = {data_in->lines[0][0], data_in->lines[0][1], data_in->lines[0][2], data_in->lines[0][3], NULL};
-        execlp("../repartidor/main.c", argv);
-        exit(retval);
+        char *const argv[] = {data_in->lines[0][0], data_in->lines[0][1], data_in->lines[0][2], data_in->lines[0][3], NULL};
+        execv("./repartidor", argv);
+        // exit(retval);
       } else {
         // Factory
+        printf("FACTORY: process %d\n", getpid());
       }
       
     }
 
   } else
   {
-    for(int i = 1; i < 3; i++)
-    {
+    // for(int i = 0; i < 3; i++)
+    // {
+      // Traffic Light 1
       traffic_light_pid = fork();
       if (traffic_light_pid == 0)
       {
-        char const *argv[] = {data_in->lines[1][i+2], NULL}; // Entregar los valores para cada semaforo
-        execlp("../semaforo/main.c", argv);
+        char *const argv[] = {data_in->lines[1][2], NULL}; // Entregar los valores para cada semaforo
+        execv("./semaforo", argv);
         exit(retval);
       } else
       {
-        // main proccess
+        // Traffic Light 2
+        traffic_light_pid = fork();
+        if (traffic_light_pid == 0)
+        {
+          char *const argv[] = {data_in->lines[1][3], NULL}; // Entregar los valores para cada semaforo
+          execv("./semaforo", argv);
+          exit(retval);
+        } else
+        {
+          // Traffic Light 3
+          traffic_light_pid = fork();
+          if (traffic_light_pid == 0)
+          {
+            char *const argv[] = {data_in->lines[1][4], NULL}; // Entregar los valores para cada semaforo
+            execv("./semaforo", argv);
+            exit(retval);
+          } else
+          {
+            // main proccess
+            printf("MAIN: process %d\n", getpid());
+          }
+        }
       }
 
-    }    
+    // }    
 
 
   }

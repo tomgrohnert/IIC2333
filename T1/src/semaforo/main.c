@@ -38,7 +38,7 @@ int main(int argc, char const *argv[])
     printf("I'm the SEMAFORO process and my PID is: %i\n", getpid());
     Semaforo* semaforo = malloc(sizeof(Semaforo));
     semaforo->id = getpid();
-    semaforo->delay = 6;
+    semaforo->delay = atoi(argv[0]);
     semaforo->color_actual = 1;
     int counter = cambio_de_color(semaforo);
     FILE* output = fopen("semaforo.txt", "w");
