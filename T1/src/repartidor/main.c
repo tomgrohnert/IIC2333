@@ -18,10 +18,10 @@ void avanzar(Repartidor* repartidor)
   }
 }
 
-int main(int argc, char const *argv[])
+int main(int argc, int const *argv[])
 {
   printf("I'm the REPARTIDOR process and my PID is: %i\n", getpid());
   Repartidor* repartidor = malloc(sizeof(Repartidor));
-  repartidor->id = 1;
+  repartidor->id = getpid();
   avanzar(repartidor);
 }

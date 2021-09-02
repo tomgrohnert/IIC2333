@@ -25,13 +25,8 @@ int main(int argc, char const *argv[])
   printf("- Lineas en archivo: %i\n", data_in->len);
   printf("- Contenido del archivo:\n");
   printf("veamos, %i \n", data_in->len);
+
   factory_pid = fork();
-  //This is factory
-  if (factory_pid == -1)
-  {
-    // If fork does not function
-    exit(-1);
-  }
   if (factory_pid == 0)
   {
     //This is the creation of delivery
@@ -44,9 +39,7 @@ int main(int argc, char const *argv[])
       if (delivery_pid == 0)
       {
         // We have to exec everything in delivery
-        // exec("../repartidor/main.c")
-        // exit(retval); /* child exits with user-provided return code */
-      } else
+        int const *argv[] = {atoi(data_in->lines[0][0]), atoi(data_in->lines[0][1]), atoi(data_in->lines[0][2]), atoi(data_in->lines[0][3]), NULL
       {
         // Factory
       }
@@ -55,31 +48,25 @@ int main(int argc, char const *argv[])
 
   } else
   {
-    //This is the creation of traffic_lights
-    for (int i = 0; i < 3; i++)
+    for(int i = 1; i < 3; i++)
     {
       traffic_light_pid = fork();
       if (traffic_light_pid == 0)
       {
-        // We have to exec everything in delivery
-        // We are giving as arguments, first; time, second; we should give its time to start, last; differnece time with previous
-        if (i > 0)
-        {
-          distance_previous_light = (atoi(data_in->lines[0][i]) - atoi(data_in->lines[0][i-1]));
-        } else
-        {
-          distance_previous_light = 0;
-        }
-        //int const *argv[] = {atoi(data_in->lines[1][i+2]), atoi(data_in->lines[0][i]), distance_previous_light, NULL}; // Entregar los valores para cada semaforo
-        //exec("../semaforo/main.c", argv)
+        int const *argv[] = {atoi(data_in->lines[1][i+2]), NULL}; // Entregar los valores para cada semaforo
+        exec("../semaforo/main.c", argv)
+        exit(retval);
       } else
       {
-        //parent wait for this traffic light to change light
-
+        // main proccess
       }
-    }
+
+    }    
+
 
   }
+
+  
   for (int i = 0; i < 4; i++)
   {
     printf("%s\n", data_in->lines[0][i]);

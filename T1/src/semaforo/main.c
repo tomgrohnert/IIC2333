@@ -33,7 +33,7 @@ int main(int argc, char const *argv[])
 {
     printf("I'm the SEMAFORO process and my PID is: %i\n", getpid());
     Semaforo* semaforo = malloc(sizeof(Semaforo));
-    semaforo->id = 1;
+    semaforo->id = getpid();
     semaforo->delay = 6;
     semaforo->color_actual = 1;
     int contador = cambio_de_color(semaforo);
