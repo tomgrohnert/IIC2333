@@ -17,6 +17,7 @@ typedef struct inputfile
 } InputFile;
 
 // Declare functions
+
 InputFile *read_file(char *filename);
 void input_file_destroy(InputFile *input_file);
 void connect_sigaction(int sig, void (*handler)(int, siginfo_t *, void *));

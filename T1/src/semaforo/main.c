@@ -39,4 +39,5 @@ int main(int argc, char const *argv[])
     int contador = cambio_de_color(semaforo);
     FILE* output = fopen("semaforo.txt", "w");
     resultados(output,contador);
+  printf("I'm the SEMAFORO process and my PID is: %i\n", getpid());
 }
