@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <unistd.h>
-#include <sys/wait.h> 
+#include <stdlib.h>
 
 #include "../file_manager/manager.h"
+
 
 int main(int argc, char const *argv[])
 {
@@ -10,74 +11,83 @@ int main(int argc, char const *argv[])
 
   char *filename = "input.txt";
   InputFile *data_in = read_file(filename);
+  int number_of_deliveries;
+  int time_of_creation;
+  int distance_previous_light;
+  pid_t factory_pid;
+  pid_t delivery_pid;
+  pid_t traffic_light_pid;
 
-  // printf("Leyendo el archivo %s...\n", filename);
-  // printf("- Lineas en archivo: %i\n", data_in->len);
-  // printf("- Contenido del archivo:\n");
-
-  // printf("\t- ");
-
-  int dist_semaforo1 = data_in->lines[0][0];
-  int dist_semaforo2 = data_in->lines[0][1];
-  int dist_semaforo3 = data_in->lines[0][2];
-  int dist_bodega = data_in->lines[0][3];
-
-  int tiempo_repartidores = data_in->lines[1][0];
-  int n_repartidores = data_in->lines[1][1];
-  int tiempo_semaforo1 = data_in->lines[1][2];
-  int tiempo_semaforo2 = data_in->lines[1][3];
-  int tiempo_semaforo3 = data_in->lines[1][4];
-
-  int status;  
-  int retval;
-
-  pid_t fabrica_pid = fork();
-    
-  if (fabrica_pid >= 0) /* fork succeeded */
+  printf("Leyendo el archivo %s...\n", filename);
+  printf("- Lineas en archivo: %i\n", data_in->len);
+  printf("- Contenido del archivo:\n");
+  printf("veamos, %i \n", data_in->len);
+  factory_pid = fork();
+  //This is factory
+  if (factory_pid == -1)
   {
-      if (fabrica_pid == 0) /* fork() returns 0 to the child process */
-      {
-        printf("FABRICA: I am the child process!\n");
-        printf("FABRICA: Here's my PID: %d\n", getpid());
-        printf("FABRICA: My parent's PID is: %d\n", getppid());
-        printf("FABRICA: The value of my copy of fabrica_pid is: %d\n", fabrica_pid);
-
-        // Aca empiezan a correr los procesos de semaforos con exec() y repartidores
-        char const *argv[] = {"1",NULL}; // Entregar los valores para cada semaforo
-        execv("./repartidor", argv);
-        // Aca debiese esperar a que lleguen 
-        printf("FABRICA: Goodbye!\n");    
-        exit(retval); /* child exits with user-provided return code */
-      }
-      else /* fork() returns new pid to the parent process */
-      {
-        printf("MAIN: I am the parent process!\n");
-        printf("MAIN: Here's my PID: %d\n", getpid());
-        char const *argv[] = {"1",NULL}; // Entregar los valores para cada semaforo
-        execv("./semaforo", argv);
-        printf("MAIN: The value of my copy of fabrica_pid is %d\n", fabrica_pid);
-        printf("MAIN: I will now wait for my child to exit.\n");
-        printf("MAIN: Goodbye!\n");             
-        exit(0);  /* parent exits */  
-      }
+    // If fork does not function
+    exit(-1);
   }
-  else /* fork returns -1 on failure */
+  if (factory_pid == 0)
   {
-      perror("fork"); /* display error message */
-      exit(0); 
+    //This is the creation of delivery
+    number_of_deliveries = atoi(data_in->lines[1][1]);
+    time_of_creation = atoi(data_in->lines[1][0]);
+    for (int i = 0; i < number_of_deliveries; i++)
+    {
+      sleep(time_of_creation);
+      delivery_pid = fork();
+      if (delivery_pid == 0)
+      {
+        // We have to exec everything in delivery
+        //exec("../repartidor/main.c")
+      } else
+      {
+        // Factory
+      }
+      
+    }
+
+  } else
+  {
+    //This is the creation of traffic_lights
+    for (int i = 0; i < 3; i++)
+    {
+      traffic_light_pid = fork();
+      if (traffic_light_pid == 0)
+      {
+        // We have to exec everything in delivery
+        // We are giving as arguments, first; time, second; we should give its time to start, last; differnece time with previous
+        if (i > 0)
+        {
+          distance_previous_light = (atoi(data_in->lines[0][i]) - atoi(data_in->lines[0][i-1]));
+        } else
+        {
+          distance_previous_light = 0;
+        }
+        
+        //exec("../semaforo/main.c", atoi(data_in->lines[1][i+2]), atoi(data_in->lines[0][i]), distance_previous_light)
+      } else
+      {
+        //parent wait for this traffic light to change light
+
+      }
+    }
+
   }
+  for (int i = 0; i < 4; i++)
+  {
+    printf("%s\n", data_in->lines[0][i]);
+  } 
+  
+  printf("\n");
 
-  // for (int i = 0; i < 4; i++)
-  // {
-  //   printf("%s, ", data_in->lines[0][i]);
-  // }
-  // printf("\n");
-
-  // printf("\t- ");
-  // for (int i = 0; i < 5; i++)
-  // {
-  //   printf("%s, ", data_in->lines[1][i]);
-  // }
+  printf("\t- ");
+  for (int i = 0; i < 5; i++)
+  {
+    printf("%s, ", data_in->lines[1][i]);
+  }
   printf("\n");
 
   printf("Liberando memoria...\n");
