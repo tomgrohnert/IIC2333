@@ -4,7 +4,38 @@
 #include <stdlib.h>
 
 #include "../file_manager/manager.h"
+#include "./dccuber.h"
 
+void handle_state(int sig, siginfo_t *siginfo, void *context)
+{
+  int state_received = siginfo->si_value.sival_int;
+  // Envia el estado recibido del semaforo al repartidor
+  send_signal_with_int(delivery_pid,state_received);
+}
+
+void handle_sigint(int sig)
+{
+  // Emitir un SIGABRT a la fabrica y a los semaforos
+  kill(factory_pid,SIGABRT);
+  kill(traffic_light_pid,SIGABRT);
+}
+
+void handle_sigabrt_1(int sig)
+{
+  kill(delivery_pid,SIGABRT);
+}
+
+void handle_sigabrt_2(int sig)
+{
+  // Debe escribir los resultados en el archivo semaforo_<i>.txt
+}
+
+void handle_sigabrt_3(int sig)
+{
+  // Debe escribir los resultados en el archivo repartidor_<i>.txt
+}
+
+// MAIN PROGRAM
 
 int main(int argc, char const *argv[])
 {
@@ -19,6 +50,10 @@ int main(int argc, char const *argv[])
   pid_t traffic_light_pid;
   int status;  
   int retval;
+  // state -> estado del semaforo <i>
+  int state_1;
+  int state_2;
+  int state_3;
 
   printf("Leyendo el archivo %s...\n", filename);
   printf("- Lineas en archivo: %i\n", data_in->len);
@@ -41,10 +76,18 @@ int main(int argc, char const *argv[])
         // We have to exec everything in delivery
         char *const argv[] = {data_in->lines[0][0], data_in->lines[0][1], data_in->lines[0][2], data_in->lines[0][3], NULL};
         execv("./repartidor", argv);
+
+        signal(SIGABRT,handle_sigabrt_3);
         // exit(retval);
       } else {
         // Factory
         printf("FACTORY: process %d\n", getpid());
+        // Recibe un SIGUSR1 con la información del estado de cada semaforo
+        connect_sigaction(SIGUSR1,handle_state);
+
+        signal(SIGABRT,handle_sigabrt_1);
+
+        wait(NULL); // Tiene que esperar a que terminen los deliveries
       }
       
     }
@@ -57,8 +100,12 @@ int main(int argc, char const *argv[])
       traffic_light_pid = fork();
       if (traffic_light_pid == 0)
       {
-        char *const argv[] = {data_in->lines[1][2], NULL}; // Entregar los valores para cada semaforo
+        char *const argv[] = {data_in->lines[1][2], NULL}; 
         execv("./semaforo", argv);
+        // Envia el estado del semaforo a la fabrica
+        send_signal_with_int(factory_pid,state_1);
+
+        signal(SIGABRT,handle_sigabrt_2);
         exit(retval);
       } else
       {
@@ -66,8 +113,12 @@ int main(int argc, char const *argv[])
         traffic_light_pid = fork();
         if (traffic_light_pid == 0)
         {
-          char *const argv[] = {data_in->lines[1][3], NULL}; // Entregar los valores para cada semaforo
+          char *const argv[] = {data_in->lines[1][3], NULL}; 
           execv("./semaforo", argv);
+          // Envia el estado del semaforo a la fabrica
+          send_signal_with_int(factory_pid,state_2);
+
+          signal(SIGABRT,handle_sigabrt_2);
           exit(retval);
         } else
         {
@@ -75,13 +126,22 @@ int main(int argc, char const *argv[])
           traffic_light_pid = fork();
           if (traffic_light_pid == 0)
           {
-            char *const argv[] = {data_in->lines[1][4], NULL}; // Entregar los valores para cada semaforo
+            char *const argv[] = {data_in->lines[1][4], NULL}; 
             execv("./semaforo", argv);
+            // Envia el estado del semaforo a la fabrica
+            send_signal_with_int(factory_pid,state_3);
+
+            signal(SIGABRT,handle_sigabrt_2);
             exit(retval);
           } else
           {
             // main proccess
             printf("MAIN: process %d\n", getpid());
+
+            signal(SIGINT,handle_sigint);
+            kill(getpid(),SIGINT);
+
+            wait(NULL);
           }
         }
       }
