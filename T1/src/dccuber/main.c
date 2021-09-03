@@ -32,7 +32,7 @@ int main(int argc, char const *argv[])
     //This is the creation of delivery
     number_of_deliveries = atoi(data_in->lines[1][1]);
     time_of_creation = atoi(data_in->lines[1][0]);
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < number_of_deliveries; i++)
     {
       sleep(time_of_creation);
       delivery_pid = fork();
