@@ -14,7 +14,6 @@ int main(int argc, char const *argv[])
   InputFile *data_in = read_file(filename);
   int number_of_deliveries;
   int time_of_creation;
-  int distance_previous_light;
   pid_t factory_pid;
   pid_t delivery_pid;
   pid_t traffic_light_pid;
@@ -25,13 +24,9 @@ int main(int argc, char const *argv[])
   printf("- Lineas en archivo: %i\n", data_in->len);
   printf("- Contenido del archivo:\n");
   printf("veamos, %i \n", data_in->len);
+
+
   factory_pid = fork();
-  //This is factory
-  if (factory_pid == -1)
-  {
-    // If fork does not function
-    exit(-1);
-  }
   if (factory_pid == 0)
   {
     //This is the creation of delivery
@@ -44,42 +39,59 @@ int main(int argc, char const *argv[])
       if (delivery_pid == 0)
       {
         // We have to exec everything in delivery
-        // exec("../repartidor/main.c")
-        // exit(retval); /* child exits with user-provided return code */
-      } else
-      {
+        char *const argv[] = {data_in->lines[0][0], data_in->lines[0][1], data_in->lines[0][2], data_in->lines[0][3], NULL};
+        execv("./repartidor", argv);
+        // exit(retval);
+      } else {
         // Factory
+        printf("FACTORY: process %d\n", getpid());
       }
       
     }
 
   } else
   {
-    //This is the creation of traffic_lights
-    for (int i = 0; i < 3; i++)
-    {
+    // for(int i = 0; i < 3; i++)
+    // {
+      // Traffic Light 1
       traffic_light_pid = fork();
       if (traffic_light_pid == 0)
       {
-        // We have to exec everything in delivery
-        // We are giving as arguments, first; time, second; we should give its time to start, last; differnece time with previous
-        if (i > 0)
-        {
-          distance_previous_light = (atoi(data_in->lines[0][i]) - atoi(data_in->lines[0][i-1]));
-        } else
-        {
-          distance_previous_light = 0;
-        }
-        //int const *argv[] = {atoi(data_in->lines[1][i+2]), atoi(data_in->lines[0][i]), distance_previous_light, NULL}; // Entregar los valores para cada semaforo
-        //exec("../semaforo/main.c", argv)
+        char *const argv[] = {data_in->lines[1][2], NULL}; // Entregar los valores para cada semaforo
+        execv("./semaforo", argv);
+        exit(retval);
       } else
       {
-        //parent wait for this traffic light to change light
-
+        // Traffic Light 2
+        traffic_light_pid = fork();
+        if (traffic_light_pid == 0)
+        {
+          char *const argv[] = {data_in->lines[1][3], NULL}; // Entregar los valores para cada semaforo
+          execv("./semaforo", argv);
+          exit(retval);
+        } else
+        {
+          // Traffic Light 3
+          traffic_light_pid = fork();
+          if (traffic_light_pid == 0)
+          {
+            char *const argv[] = {data_in->lines[1][4], NULL}; // Entregar los valores para cada semaforo
+            execv("./semaforo", argv);
+            exit(retval);
+          } else
+          {
+            // main proccess
+            printf("MAIN: process %d\n", getpid());
+          }
+        }
       }
-    }
+
+    // }    
+
 
   }
+
+  
   for (int i = 0; i < 4; i++)
   {
     printf("%s\n", data_in->lines[0][i]);

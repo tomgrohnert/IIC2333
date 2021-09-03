@@ -12,4 +12,4 @@ typedef struct repartidor
 
 void resultados(FILE* output_file, Repartidor* repartidor);
 
-void avanzar(Repartidor* repartidor);
+void avanzar(Repartidor* repartidor, int finish_position);
