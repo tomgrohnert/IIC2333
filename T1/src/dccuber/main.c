@@ -13,6 +13,8 @@ pid_t factory_pid;
 pid_t traffic_light_pid;
 int all_traffic_lights[3] = {1, 1, 1};
 
+// int all_deliveries[66];
+
 void handle_state(int sig, siginfo_t *siginfo, void *context)
 {
   int state_received = siginfo->si_value.sival_int;
@@ -23,6 +25,11 @@ void handle_state(int sig, siginfo_t *siginfo, void *context)
     all_traffic_lights[state_received] = 1;
   }
   // Envia el estado recibido del semaforo al repartidor
+  // for (int j=0;j<66;j++)
+  // {
+  //   printf("Enviado a %d\n",all_deliveries[j]);
+  //   send_signal_with_int(all_deliveries[j], state_received);
+  // }
   send_signal_with_int(delivery_pid, state_received);
 }
 
@@ -78,6 +85,7 @@ int main(int argc, char const *argv[])
     {
       sleep(time_of_creation);
       delivery_pid = fork();
+      // all_deliveries[i] = delivery_pid;
       if (delivery_pid == 0)
       {
         // We have to exec everything in delivery
@@ -115,7 +123,7 @@ int main(int argc, char const *argv[])
         // Envia el estado del semaforo a la fabrica
 
         // signal(SIGABRT,handle_sigabrt_2);
-        exit(retval);
+        // exit(retval);
       } 
       else
       {
@@ -128,7 +136,7 @@ int main(int argc, char const *argv[])
           // Envia el estado del semaforo a la fabrica
 
           // signal(SIGABRT,handle_sigabrt_2);
-          exit(retval);
+          // exit(retval);
         } else
         {
           // Traffic Light 3
@@ -140,17 +148,17 @@ int main(int argc, char const *argv[])
             // Envia el estado del semaforo a la fabrica
 
             // signal(SIGABRT,handle_sigabrt_2);
-            exit(retval);
+            // exit(retval);
           } 
           else
           {
             // main proccess
             printf("MAIN: process %d\n", getpid());
 
-          //   signal(SIGINT,handle_sigint);
-          //   kill(getpid(),SIGINT);
+            // signal(SIGINT,handle_sigint);
+            // kill(getpid(),SIGINT);
 
-          //   wait(NULL);
+            // wait(NULL);
           }
         }
 
