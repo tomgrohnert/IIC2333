@@ -3,9 +3,9 @@
 #include <stdbool.h>
 #include <signal.h>
 #include "./repartidor.h"
+#include "../file_manager/manager.h"
 
 int all_traffic_lights_deliveries[3] = {1, 1, 1};
-
 
 void resultados(FILE* output_file, Repartidor* repartidor)
 {
@@ -35,6 +35,7 @@ void avanzar(Repartidor* repartidor, int position_1, int position_2, int positio
     *current_position = repartidor->posicion_actual;
     repartidor->posicion_actual = *current_position + 1;
     free(current_position);
+    connect_sigaction(SIGUSR1,handle_sigusr1);
     if (repartidor->posicion_actual == finish_position)
     {
       printf("Repartidor %d llego: Posicion %d\n", repartidor->id, repartidor->posicion_actual);

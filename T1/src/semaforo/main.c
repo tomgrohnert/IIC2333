@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include "./semaforo.h"
 
+#include "../file_manager/manager.h"
+
 int cambio_de_color(Semaforo* semaforo) // Tiene que recibir la señal de que todos los repartidores llegaron a la bodega
 {
     bool boolean = true;
