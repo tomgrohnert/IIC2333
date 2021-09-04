@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include "./repartidor.h"
 
+#include "../file_manager/manager.h"
+
 void resultados(FILE* output_file, Repartidor* repartidor)
 {
   fprintf(output_file,"TIEMPO_SEMAFORO1,TIEMPO_SEMAFORO2,TIEMPO_SEMAFORO3,TIEMPO_BODEGA\n");
@@ -27,28 +29,29 @@ void avanzar(Repartidor* repartidor, int position_1, int position_2, int positio
     *current_position = repartidor->posicion_actual;
     repartidor->posicion_actual = *current_position + 1;
     free(current_position);
+    connect_sigaction(SIGUSR1,handle_sigusr1);
     if (repartidor->posicion_actual == finish_position)
     {
       printf("Repartidor %d llego: Posicion %d\n", repartidor->id, repartidor->posicion_actual);
       boolean = false;
     } 
-    else if (repartidor->posicion_actual == position_1)
-    {
-      // Consultar a la fabrica por el estado del semaforo 1
+    // else if (repartidor->posicion_actual == position_1)
+    // {
+    //   // Consultar a la fabrica por el estado del semaforo 1
 
-      // Recibir la señal con el estado actual del semaforo
-      connect_sigaction(SIGUSR1,handle_sigusr1); 
-    }
-    else if (repartidor->posicion_actual == position_2)
-    {
-      // Consultar a la fabrica por el estado del semaforo 2
-      connect_sigaction(SIGUSR1,handle_sigusr1); 
-    }
-    else if (repartidor->posicion_actual == position_3)
-    {
-      // Consultar a la fabrica por el estado del semaforo 3
-      connect_sigaction(SIGUSR1,handle_sigusr1); 
-    }
+    //   // Recibir la señal con el estado actual del semaforo
+    //   connect_sigaction(SIGUSR1,handle_sigusr1); 
+    // }
+    // else if (repartidor->posicion_actual == position_2)
+    // {
+    //   // Consultar a la fabrica por el estado del semaforo 2
+    //   connect_sigaction(SIGUSR1,handle_sigusr1); 
+    // }
+    // else if (repartidor->posicion_actual == position_3)
+    // {
+    //   // Consultar a la fabrica por el estado del semaforo 3
+    //   connect_sigaction(SIGUSR1,handle_sigusr1); 
+    // }
     else
     {
       printf("Repartidor %d: Posicion %d\n", repartidor->id, repartidor->posicion_actual);
