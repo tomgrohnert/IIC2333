@@ -81,7 +81,7 @@ int main(int argc, char const *argv[])
       if (delivery_pid == 0)
       {
         // We have to exec everything in delivery
-        char *const argv[] = {data_in->lines[0][0], data_in->lines[0][1], data_in->lines[0][2], data_in->lines[0][3], NULL};
+        char *const argv[] = {itoa(i), data_in->lines[0][0], data_in->lines[0][1], data_in->lines[0][2], data_in->lines[0][3], NULL};
         execv("./repartidor", argv);
 
         // signal(SIGABRT,handle_sigabrt_3);
