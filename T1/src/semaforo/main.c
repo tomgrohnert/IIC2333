@@ -10,7 +10,7 @@ int cambio_de_color(Semaforo* semaforo) // Tiene que recibir la señal de que to
     bool boolean = true;
     while (boolean)
     {
-    //   sleep(semaforo->delay);
+      sleep(semaforo->delay);
       if (semaforo->color_actual == 1)
       {
           printf("Semaforo %d: VERDE\n", semaforo->id);
@@ -21,12 +21,11 @@ int cambio_de_color(Semaforo* semaforo) // Tiene que recibir la señal de que to
           printf("Semaforo %d: ROJO\n", semaforo->id);
           semaforo->color_actual = 1;
       }
-      send_signal_with_int(semaforo->pid_fabrica,semaforo->color_actual);
-      sleep(semaforo->delay);
       int *number_of_changes = malloc(sizeof(int));
       *number_of_changes = semaforo->cantidad_de_cambios;
       semaforo->cantidad_de_cambios = *number_of_changes + 1;
       free(number_of_changes);
+      send_signal_with_int(itoa(semaforo->parent), semaforo->id);
     }
     return semaforo->cantidad_de_cambios;
 }
@@ -41,8 +40,9 @@ int main(int argc, char const *argv[])
 {
     printf("I'm the SEMAFORO process and my PID is: %i\n", getpid());
     Semaforo* semaforo = malloc(sizeof(Semaforo));
-    semaforo->id = getpid();
+    semaforo->id = atoi(argv[0]);
     semaforo->delay = atoi(argv[1]);
+    semaforo->parent = atoi(argv[2]);
     semaforo->color_actual = 1;
     int counter = cambio_de_color(semaforo);
     FILE* output = fopen("semaforo.txt", "w");
