@@ -6,11 +6,23 @@
 #include "../file_manager/manager.h"
 #include "./dccuber.h"
 
+// Declare
+pid_t delivery_pid;
+pid_t factory_pid;
+pid_t traffic_light_pid;
+int all_traffic_lights[3] = {1, 1, 1};
+
 void handle_state(int sig, siginfo_t *siginfo, void *context)
 {
   int state_received = siginfo->si_value.sival_int;
+  if (all_traffic_lights[state_received] == 1){
+    all_traffic_lights[state_received] = 0;
+  } else
+  {
+    all_traffic_lights[state_received] = 1;
+  }
   // Envia el estado recibido del semaforo al repartidor
-  send_signal_with_int(delivery_pid,state_received);
+  send_signal_with_int(delivery_pid, state_received);
 }
 
 void handle_sigint(int sig)
@@ -35,6 +47,7 @@ void handle_sigabrt_3(int sig)
   // Debe escribir los resultados en el archivo repartidor_<i>.txt
 }
 
+
 // MAIN PROGRAM
 
 int main(int argc, char const *argv[])
@@ -45,9 +58,6 @@ int main(int argc, char const *argv[])
   InputFile *data_in = read_file(filename);
   int number_of_deliveries;
   int time_of_creation;
-  pid_t factory_pid;
-  pid_t delivery_pid;
-  pid_t traffic_light_pid;
   int status;  
   int retval;
   // state -> estado del semaforo <i>
@@ -83,7 +93,7 @@ int main(int argc, char const *argv[])
         // Factory
         printf("FACTORY: process %d\n", getpid());
         // Recibe un SIGUSR1 con la información del estado de cada semaforo
-        connect_sigaction(SIGUSR1,handle_state);
+        connect_sigaction(SIGUSR1, handle_state);
 
         signal(SIGABRT,handle_sigabrt_1);
 
@@ -100,10 +110,10 @@ int main(int argc, char const *argv[])
       traffic_light_pid = fork();
       if (traffic_light_pid == 0)
       {
-        char *const argv[] = {data_in->lines[1][2], NULL}; 
+        char *const argv[] = {data_in->lines[1][2], factory_pid, NULL}; 
         execv("./semaforo", argv);
         // Envia el estado del semaforo a la fabrica
-        send_signal_with_int(factory_pid,state_1);
+        send_signal_with_int(factory_pid, state_1);
 
         signal(SIGABRT,handle_sigabrt_2);
         exit(retval);

@@ -1,7 +1,11 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <signal.h>
 #include "./repartidor.h"
+
+int all_traffic_lights_deliveries[3] = {1, 1, 1};
+
 
 void resultados(FILE* output_file, Repartidor* repartidor)
 {
@@ -12,9 +16,12 @@ void resultados(FILE* output_file, Repartidor* repartidor)
 void handle_sigusr1(int sig, siginfo_t *siginfo, void *context)
 {
   int state_received = siginfo->si_value.sival_int;
-  if (state_received == 0)
+  if (all_traffic_lights_deliveries[state_received] == 0)
   {
-    // Wait until the light is green
+    all_traffic_lights_deliveries[state_received] = 1;
+  } else
+  {
+    all_traffic_lights_deliveries[state_received] = 0;
   }
 }
 
@@ -23,6 +30,7 @@ void avanzar(Repartidor* repartidor, int position_1, int position_2, int positio
   bool boolean = true;
   while (boolean) // Esto tiene que ser hasta que el repartidor llegue a la bodega
   {
+    connect_sigaction(SIGUSR1, handle_sigusr1);
     int *current_position = malloc(sizeof(int));
     *current_position = repartidor->posicion_actual;
     repartidor->posicion_actual = *current_position + 1;
@@ -34,20 +42,28 @@ void avanzar(Repartidor* repartidor, int position_1, int position_2, int positio
     } 
     else if (repartidor->posicion_actual == position_1)
     {
-      // Consultar a la fabrica por el estado del semaforo 1
+      if (all_traffic_lights_deliveries[0] == 0)
+      {
+        // wait
+      }
 
-      // Recibir la señal con el estado actual del semaforo
-      connect_sigaction(SIGUSR1,handle_sigusr1); 
+       
     }
     else if (repartidor->posicion_actual == position_2)
     {
-      // Consultar a la fabrica por el estado del semaforo 2
-      connect_sigaction(SIGUSR1,handle_sigusr1); 
+      if (all_traffic_lights_deliveries[1] == 0)
+      {
+        // wait
+      }
+     
     }
     else if (repartidor->posicion_actual == position_3)
     {
-      // Consultar a la fabrica por el estado del semaforo 3
-      connect_sigaction(SIGUSR1,handle_sigusr1); 
+      if (all_traffic_lights_deliveries[2] == 0)
+      {
+        // wait
+      }
+      
     }
     else
     {

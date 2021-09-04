@@ -5,7 +5,7 @@ typedef struct semaforo
   int id; // id del semaforo
   int delay;
   int cantidad_de_cambios;
-  // pid_t pid_fabrica;
+  pid_t parent;
   int color_actual; // 0-> rojo y 1-> verde, parte con verde por default
 } Semaforo;
 
