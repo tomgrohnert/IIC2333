@@ -13,3 +13,7 @@ typedef struct repartidor
 void resultados(FILE* output_file, Repartidor* repartidor);
 
 void avanzar(Repartidor* repartidor, int postion_1, int position_2, int position_3, int finish_position);
+
+int resting(int traffic_light_id);
+
+void handle_sigusr1(int sig, siginfo_t *siginfo, void *context);

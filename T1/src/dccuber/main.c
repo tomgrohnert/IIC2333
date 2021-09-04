@@ -81,7 +81,9 @@ int main(int argc, char const *argv[])
       if (delivery_pid == 0)
       {
         // We have to exec everything in delivery
-        char *const argv[] = {itoa(i), data_in->lines[0][0], data_in->lines[0][1], data_in->lines[0][2], data_in->lines[0][3], NULL};
+        char text[20];
+        sprintf(text, "%d", i);
+        char *const argv[] = {text, data_in->lines[0][0], data_in->lines[0][1], data_in->lines[0][2], data_in->lines[0][3], NULL};
         execv("./repartidor", argv);
 
         // signal(SIGABRT,handle_sigabrt_3);
@@ -104,9 +106,11 @@ int main(int argc, char const *argv[])
   {
       // Traffic Light 1
       traffic_light_pid = fork();
+      char text_2[20];
+      sprintf(text_2, "%d", factory_pid);
       if (traffic_light_pid == 0)
       {
-        char *const argv[] = {"0", data_in->lines[1][2], itoa(factory_pid), NULL}; 
+        char *const argv[] = {"0", data_in->lines[1][2], text_2, NULL}; 
         execv("./semaforo", argv);
         // Envia el estado del semaforo a la fabrica
 
@@ -119,7 +123,7 @@ int main(int argc, char const *argv[])
         traffic_light_pid = fork();
         if (traffic_light_pid == 0)
         {
-          char *const argv[] = {"1", data_in->lines[1][3], itoa(factory_pid), NULL}; 
+          char *const argv[] = {"1", data_in->lines[1][3], text_2, NULL}; 
           execv("./semaforo", argv);
           // Envia el estado del semaforo a la fabrica
 
@@ -131,7 +135,7 @@ int main(int argc, char const *argv[])
           traffic_light_pid = fork();
           if (traffic_light_pid == 0)
           {
-            char *const argv[] = {"2", data_in->lines[1][4], itoa(factory_pid), NULL}; 
+            char *const argv[] = {"2", data_in->lines[1][4], text_2, NULL}; 
             execv("./semaforo", argv);
             // Envia el estado del semaforo a la fabrica
 

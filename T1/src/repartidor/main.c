@@ -9,8 +9,8 @@ int all_traffic_lights_deliveries[3] = {1, 1, 1};
 
 void resultados(FILE* output_file, Repartidor* repartidor)
 {
-  fprintf(output_file,"TIEMPO_SEMAFORO1,TIEMPO_SEMAFORO2,TIEMPO_SEMAFORO3,TIEMPO_BODEGA\n");
-  fprintf(output_file,"%d,%d,%d,%d\n",repartidor->t1,repartidor->t2,repartidor->t3,repartidor->t_bodega);
+  fprintf(output_file,"TIEMPO_SEMAFORO1, TIEMPO_SEMAFORO2, TIEMPO_SEMAFORO3, TIEMPO_BODEGA\n");
+  fprintf(output_file,"%d, %d, %d, %d\n",repartidor->t1,repartidor->t2,repartidor->t3,repartidor->t_bodega);
 }
 
 void handle_sigusr1(int sig, siginfo_t *siginfo, void *context)
@@ -30,7 +30,7 @@ int resting(int traffic_light_id)
   int counter = 0;
   while (all_traffic_lights_deliveries[traffic_light_id] == 0)
   {
-    printf("waiting light %d to change", traffic_light_id);
+    printf("Waiting light %d to change\n", traffic_light_id);
     sleep(1);
     counter += 1;
   }
@@ -101,20 +101,15 @@ void avanzar(Repartidor* repartidor, int position_1, int position_2, int positio
   }
 }
 
-void resultados(File* output_file, Repartidor* repartidor)
-{
-  fprintf(output_file, "%d, %d, %d, %d\n", repartidor->t1, repartidor->t2, repartidor->t3, repartidor->t_bodega);
-}
-
 int main(int argc, char const *argv[])
 {
   printf("I'm the REPARTIDOR process and my PID is: %i\n", getpid());
   Repartidor* repartidor = malloc(sizeof(Repartidor));
-  repartidor->id = atoi(argv[1]);
-  avanzar(&repartidor, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
+  repartidor->id = atoi(argv[0]);
+  avanzar(repartidor, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
   char string[30];
   sprintf(string, "repartidor_%d.txt", repartidor->id);
   FILE* output = fopen(string, "w");
-  resultados(output, &repartidor);
+  resultados(output, repartidor);
   // kill itself
 }
