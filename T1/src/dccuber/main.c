@@ -38,23 +38,21 @@ void handle_state(int sig, siginfo_t *siginfo, void *context)
 void handle_sigint(int sig)
 {
   // Emitir un SIGABRT a la fabrica y a los semaforos
-  kill(factory_pid,SIGABRT);
-  kill(traffic_light_pid,SIGABRT);
+
+  kill(all_factories[0], SIGABRT);
+  for (int j=0;j<3;j++)
+  {
+     kill(all_lights[j], SIGABRT);
+  }
 }
 
-void handle_sigabrt_1(int sig)
+void handle_sigabrt(int sig)
 {
-  kill(delivery_pid,SIGABRT);
-}
+  for (int j=0;j<deliveries_created;j++)
+  {
+    kill(all_deliveries[j], SIGABRT);
+  }
 
-void handle_sigabrt_2(int sig)
-{
-  // Debe escribir los resultados en el archivo semaforo_<i>.txt
-}
-
-void handle_sigabrt_3(int sig)
-{
-  // Debe escribir los resultados en el archivo repartidor_<i>.txt
 }
 
 
@@ -81,6 +79,7 @@ int main(int argc, char const *argv[])
   factory_pid = fork();
   if (factory_pid == 0)
   {
+    signal(SIGABRT, handle_sigabrt);
     //This is the creation of delivery
     for (int i = 0; i < number_of_deliveries; i++)
     {
@@ -162,12 +161,10 @@ int main(int argc, char const *argv[])
         }
 
       }    
-
-
   }
   for (int i = 0; i < 3; i++)
   {
-    kill(all_lights[i], SIGINT);
+    kill(all_lights[i], SIGTERM);
   }
   
   for (int i = 0; i < 4; i++)
