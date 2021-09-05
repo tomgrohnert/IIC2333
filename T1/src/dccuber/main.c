@@ -31,7 +31,6 @@ void handle_state(int sig, siginfo_t *siginfo, void *context)
   // Envia el estado recibido del semaforo al repartidor
   for (int j=0;j<deliveries_created;j++)
   {
-     printf("Enviado a %d, el id %d del semaforo\n",all_deliveries[j], state_received);
      send_signal_with_int(all_deliveries[j], state_received);
    }
   // send_signal_with_int(delivery_pid, state_received);
@@ -106,23 +105,25 @@ int main(int argc, char const *argv[])
         connect_sigaction(SIGUSR1, handle_state);
 
         // signal(SIGABRT,handle_sigabrt_1);
-        while(number_of_deliveries_finished != number_of_deliveries)
-        {
-          for(int i = 0; i < deliveries_created; i++)
-          {
-            waitpid(all_deliveries[i], NULL, 0);
-            printf("uno menos %d", i);
-          }
-          // waitpid(NULL); // Tiene que esperar a que terminen los deliveries
-          // number_of_deliveries_finished += 1;
-          // printf("uno menos %d", i);
-        }
-        printf("Termiando fabrica lpm %d, %d", number_of_deliveries, number_of_deliveries_finished);
-        exit(0);
+        
       }
       sleep(time_of_creation);
       
     }
+    while(deliveries_created < number_of_deliveries)
+    {
+      // printf("Falta\n");
+    }
+    printf("Numero de deliveries, %d\n", number_of_deliveries);
+    number_of_deliveries_finished = 0;
+    for (int i = 0; i < number_of_deliveries + 1; i++)
+    {
+      // waitpid(all_deliveries[i], NULL, 0);
+      wait(NULL);
+      number_of_deliveries_finished += 1;
+    }
+    printf("Termiando fabrica lpm %d, %d,,,,,\n", number_of_deliveries, number_of_deliveries_finished);
+    exit(0);
 
   } 
   else
