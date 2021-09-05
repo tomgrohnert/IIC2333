@@ -133,6 +133,7 @@ int main(int argc, char const *argv[])
         all_lights[0] = traffic_light_pid;
         // // Traffic Light 2
         traffic_light_pid = fork();
+        all_lights[0] = traffic_light_pid;
         if (traffic_light_pid == 0)
         {
           char *const argv[] = {"1", data_in->lines[1][3], text_2, NULL}; 
@@ -142,6 +143,7 @@ int main(int argc, char const *argv[])
           // Traffic Light 3
           all_lights[1] = traffic_light_pid;
           traffic_light_pid = fork();
+          all_lights[1] = traffic_light_pid;
           if (traffic_light_pid == 0)
           {
             char *const argv[] = {"2", data_in->lines[1][4], text_2, NULL}; 
@@ -151,6 +153,7 @@ int main(int argc, char const *argv[])
           {
             all_lights[2] = traffic_light_pid;
             // main proccess
+            all_lights[2] = traffic_light_pid;
             printf("MAIN: process %d\n", getpid());
 
             signal(SIGINT, handle_sigint);
@@ -180,6 +183,11 @@ int main(int argc, char const *argv[])
     printf("%s, ", data_in->lines[1][i]);
   }
   printf("\n");
+
+  for (int i=0;i<3;i++)
+  {
+    kill(all_lights[i],SIGINT);
+  }
 
   printf("Liberando memoria...\n");
   input_file_destroy(data_in);
