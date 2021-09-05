@@ -113,7 +113,6 @@ int main(int argc, char const *argv[])
       wait(NULL);
       number_of_deliveries_finished += 1;
     }
-    free(all_deliveries);
     exit(0);
 
   } 
@@ -157,6 +156,7 @@ int main(int argc, char const *argv[])
             signal(SIGINT, handle_sigint);
             
             waitpid(all_factories[0], NULL, 0);
+            free(all_deliveries);
           }
         }
 
