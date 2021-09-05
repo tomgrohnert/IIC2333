@@ -17,6 +17,7 @@ int number_of_deliveries_finished;
 int deliveries_created;
 
 int all_deliveries[7];
+int all_lights[3];
 
 void handle_state(int sig, siginfo_t *siginfo, void *context)
 {
@@ -69,7 +70,7 @@ int main(int argc, char const *argv[])
   InputFile *data_in = read_file(filename);
   int time_of_creation;
   int status;  
-  // int retval;
+  int retval;
 
   printf("Leyendo el archivo %s...\n", filename);
   printf("- Lineas en archivo: %i\n", data_in->len);
@@ -105,8 +106,19 @@ int main(int argc, char const *argv[])
         connect_sigaction(SIGUSR1, handle_state);
 
         // signal(SIGABRT,handle_sigabrt_1);
-
-        // wait(NULL); // Tiene que esperar a que terminen los deliveries
+        while(number_of_deliveries_finished != number_of_deliveries)
+        {
+          for(int i = 0; i < deliveries_created; i++)
+          {
+            waitpid(all_deliveries[i], NULL, 0);
+            printf("uno menos %d", i);
+          }
+          // waitpid(NULL); // Tiene que esperar a que terminen los deliveries
+          // number_of_deliveries_finished += 1;
+          // printf("uno menos %d", i);
+        }
+        printf("Termiando fabrica lpm %d, %d", number_of_deliveries, number_of_deliveries_finished);
+        exit(0);
       }
       sleep(time_of_creation);
       
@@ -130,6 +142,7 @@ int main(int argc, char const *argv[])
       } 
       else
       {
+        all_lights[0] = traffic_light_pid;
         // // Traffic Light 2
         traffic_light_pid = fork();
         if (traffic_light_pid == 0)
@@ -143,6 +156,7 @@ int main(int argc, char const *argv[])
         } else
         {
           // Traffic Light 3
+          all_lights[1] = traffic_light_pid;
           traffic_light_pid = fork();
           if (traffic_light_pid == 0)
           {
@@ -155,6 +169,7 @@ int main(int argc, char const *argv[])
           } 
           else
           {
+            all_lights[2] = traffic_light_pid;
             // main proccess
             printf("MAIN: process %d\n", getpid());
 
@@ -168,7 +183,10 @@ int main(int argc, char const *argv[])
 
 
   }
-
+  for (int i = 0; i < 3; i++)
+  {
+    kill(all_lights[i], SIGINT);
+  }
   
   for (int i = 0; i < 4; i++)
   {
@@ -186,4 +204,5 @@ int main(int argc, char const *argv[])
 
   printf("Liberando memoria...\n");
   input_file_destroy(data_in);
+  return 0;
 }
