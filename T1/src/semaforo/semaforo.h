@@ -9,6 +9,6 @@ typedef struct semaforo
   int color_actual; // 0-> rojo y 1-> verde, parte con verde por default
 } Semaforo;
 
-int cambio_de_color(Semaforo* semaforo);
+void cambio_de_color();
 
 void resultados(FILE* output_file, int contador);

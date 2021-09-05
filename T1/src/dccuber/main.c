@@ -12,8 +12,11 @@ pid_t delivery_pid;
 pid_t factory_pid;
 pid_t traffic_light_pid;
 int all_traffic_lights[3] = {1, 1, 1};
+int number_of_deliveries;
+int number_of_deliveries_finished;
+int deliveries_created;
 
-// int all_deliveries[66];
+int all_deliveries[7];
 
 void handle_state(int sig, siginfo_t *siginfo, void *context)
 {
@@ -25,12 +28,12 @@ void handle_state(int sig, siginfo_t *siginfo, void *context)
     all_traffic_lights[state_received] = 1;
   }
   // Envia el estado recibido del semaforo al repartidor
-  // for (int j=0;j<66;j++)
-  // {
-  //   printf("Enviado a %d\n",all_deliveries[j]);
-  //   send_signal_with_int(all_deliveries[j], state_received);
-  // }
-  send_signal_with_int(delivery_pid, state_received);
+  for (int j=0;j<deliveries_created;j++)
+  {
+     printf("Enviado a %d, el id %d del semaforo\n",all_deliveries[j], state_received);
+     send_signal_with_int(all_deliveries[j], state_received);
+   }
+  // send_signal_with_int(delivery_pid, state_received);
 }
 
 void handle_sigint(int sig)
@@ -64,10 +67,9 @@ int main(int argc, char const *argv[])
 
   char *filename = "input.txt";
   InputFile *data_in = read_file(filename);
-  int number_of_deliveries;
   int time_of_creation;
   int status;  
-  int retval;
+  // int retval;
 
   printf("Leyendo el archivo %s...\n", filename);
   printf("- Lineas en archivo: %i\n", data_in->len);
@@ -83,9 +85,9 @@ int main(int argc, char const *argv[])
     time_of_creation = atoi(data_in->lines[1][0]);
     for (int i = 0; i < number_of_deliveries; i++)
     {
-      sleep(time_of_creation);
       delivery_pid = fork();
-      // all_deliveries[i] = delivery_pid;
+      all_deliveries[i] = delivery_pid;
+      deliveries_created += 1;
       if (delivery_pid == 0)
       {
         // We have to exec everything in delivery
@@ -106,6 +108,7 @@ int main(int argc, char const *argv[])
 
         // wait(NULL); // Tiene que esperar a que terminen los deliveries
       }
+      sleep(time_of_creation);
       
     }
 
@@ -155,10 +158,9 @@ int main(int argc, char const *argv[])
             // main proccess
             printf("MAIN: process %d\n", getpid());
 
-            // signal(SIGINT,handle_sigint);
-            // kill(getpid(),SIGINT);
+            signal(SIGINT, handle_sigint);
 
-            // wait(NULL);
+            wait(&status);
           }
         }
 

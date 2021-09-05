@@ -5,7 +5,9 @@
 
 #include "../file_manager/manager.h"
 
-int cambio_de_color(Semaforo* semaforo) // Tiene que recibir la señal de que todos los repartidores llegaron a la bodega
+Semaforo* semaforo;
+
+void cambio_de_color() // Tiene que recibir la señal de que todos los repartidores llegaron a la bodega
 {
     bool boolean = true;
     while (boolean)
@@ -27,7 +29,6 @@ int cambio_de_color(Semaforo* semaforo) // Tiene que recibir la señal de que to
       free(number_of_changes);
       send_signal_with_int(semaforo->parent, semaforo->id);
     }
-    return semaforo->cantidad_de_cambios;
 }
 
 void resultados(FILE* output_file, int counter)
@@ -36,17 +37,28 @@ void resultados(FILE* output_file, int counter)
     fprintf(output_file, "%d\n", counter);
 }
 
+void handle_sigabrt()
+{
+    char string[30];
+    sprintf(string, "semaforo_%d.txt", semaforo->id);
+    FILE* output = fopen(string, "w");
+    resultados(output, semaforo->cantidad_de_cambios);
+    kill(getpid(), SIGINT);
+}
+
 int main(int argc, char const *argv[])
 {
+    signal(SIGABRT, handle_sigabrt);
     printf("I'm the SEMAFORO process and my PID is: %i\n", getpid());
-    Semaforo* semaforo = malloc(sizeof(Semaforo));
+    semaforo = malloc(sizeof(Semaforo));
     semaforo->id = atoi(argv[0]);
     semaforo->delay = atoi(argv[1]);
     semaforo->parent = atoi(argv[2]);
     semaforo->color_actual = 1;
-    int counter = cambio_de_color(semaforo);
+    cambio_de_color();
     char string[30];
     sprintf(string, "semaforo_%d.txt", semaforo->id);
     FILE* output = fopen(string, "w");
-    resultados(output,counter);
+    resultados(output,semaforo->cantidad_de_cambios);
+    kill(getpid(), SIGINT);
 }
