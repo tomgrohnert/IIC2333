@@ -56,15 +56,6 @@ void handle_sigint()
     exit(0);
 }
 
-void handle_sigint()
-{
-    char string[30];
-    sprintf(string, "semaforo_%d.txt", semaforo->id);
-    FILE* output = fopen(string, "w");
-    resultados(output, semaforo->cantidad_de_cambios);
-    kill(getpid(), SIGINT);
-}
-
 int main(int argc, char const *argv[])
 {
     signal(SIGABRT, handle_sigabrt);
