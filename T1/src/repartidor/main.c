@@ -31,7 +31,7 @@ int resting(int traffic_light_id)
   int counter = 0;
   while (all_traffic_lights_deliveries[traffic_light_id] == 0)
   {
-    printf("Repartidor %d, Waiting light %d to change en posicion %d\n", repartidor->id, traffic_light_id, repartidor->posicion_actual);
+    // printf("Repartidor %d, Waiting light %d to change en posicion %d\n", repartidor->id, traffic_light_id, repartidor->posicion_actual);
     sleep(1);
     counter += 1;
   }
@@ -55,6 +55,8 @@ void avanzar(int position_1, int position_2, int position_3, int finish_position
     free(current_position);
     if (repartidor->posicion_actual == finish_position)
     {
+      total_time += 1;
+      repartidor->t_bodega = total_time;
       printf("Repartidor %d llego: Posicion %d\n", repartidor->id, repartidor->posicion_actual);
       boolean = false;
     } 
@@ -71,6 +73,7 @@ void avanzar(int position_1, int position_2, int position_3, int finish_position
       else
       {
         total_time += 1;
+        repartidor->t1 = total_time;
         printf("Repartidor %d: Avanza a Posicion %d\n", repartidor->id, repartidor->posicion_actual);
       }
 
@@ -88,7 +91,9 @@ void avanzar(int position_1, int position_2, int position_3, int finish_position
       }
       else
       {
+        
         total_time += 1;
+        repartidor->t2 = total_time;
         printf("Repartidor %d: Avanza a Posicion %d\n", repartidor->id, repartidor->posicion_actual);
       }
      
@@ -105,7 +110,9 @@ void avanzar(int position_1, int position_2, int position_3, int finish_position
       }
       else
       {
+        
         total_time += 1;
+        repartidor->t3 = total_time;
         printf("Repartidor %d: Avanza a Posicion %d\n", repartidor->id, repartidor->posicion_actual);
       }
       
@@ -118,13 +125,14 @@ void avanzar(int position_1, int position_2, int position_3, int finish_position
   }
 }
 
-void handle_sigabrt()
+void handle_sigabrt(int sig)
 {
   printf("Termiando REPARTIDOR %d\n", repartidor->id);
   char string[30];
   sprintf(string, "repartidor_%d.txt", repartidor->id);
   FILE* output = fopen(string, "w");
   resultados(output);
+  free(repartidor);
   exit(0);
 }
 
@@ -144,6 +152,8 @@ int main(int argc, char const *argv[])
   FILE* output = fopen(string, "w");
   resultados(output);
   // kill itself
+  free(repartidor);
+  printf("SE VA %i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", getpid());
   exit(0);
 
 }

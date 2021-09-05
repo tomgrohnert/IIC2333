@@ -52,6 +52,7 @@ void handle_sigint()
     sprintf(string, "semaforo_%d.txt", semaforo->id);
     FILE* output = fopen(string, "w");
     resultados(output, semaforo->cantidad_de_cambios);
+    free(semaforo);
     exit(0);
 }
 
@@ -70,5 +71,6 @@ int main(int argc, char const *argv[])
     sprintf(string, "semaforo_%d.txt", semaforo->id);
     FILE* output = fopen(string, "w");
     resultados(output,semaforo->cantidad_de_cambios);
+    free(semaforo);
     exit(0);
 }
