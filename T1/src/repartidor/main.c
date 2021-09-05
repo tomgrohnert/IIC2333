@@ -151,9 +151,7 @@ int main(int argc, char const *argv[])
   sprintf(string, "repartidor_%d.txt", repartidor->id);
   FILE* output = fopen(string, "w");
   resultados(output);
-  // kill itself
   free(repartidor);
-  printf("SE VA %i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", getpid());
   exit(0);
 
 }
