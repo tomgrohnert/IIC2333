@@ -6,8 +6,9 @@
 #include "../file_manager/manager.h"
 
 int all_traffic_lights_deliveries[3] = {1, 1, 1};
+Repartidor* repartidor;
 
-void resultados(FILE* output_file, Repartidor* repartidor)
+void resultados(FILE* output_file)
 {
   fprintf(output_file,"TIEMPO_SEMAFORO1, TIEMPO_SEMAFORO2, TIEMPO_SEMAFORO3, TIEMPO_BODEGA\n");
   fprintf(output_file,"%d, %d, %d, %d\n",repartidor->t1,repartidor->t2,repartidor->t3,repartidor->t_bodega);
@@ -30,22 +31,24 @@ int resting(int traffic_light_id)
   int counter = 0;
   while (all_traffic_lights_deliveries[traffic_light_id] == 0)
   {
-    printf("Waiting light %d to change\n", traffic_light_id);
+    printf("Repartidor %d, Waiting light %d to change en posicion %d\n", repartidor->id, traffic_light_id, repartidor->posicion_actual);
     sleep(1);
     counter += 1;
   }
   return counter;
 }
 
-void avanzar(Repartidor* repartidor, int position_1, int position_2, int position_3, int finish_position) // position_<i> -> position of the traffic light <i>
+void avanzar(int position_1, int position_2, int position_3, int finish_position) // position_<i> -> position of the traffic light <i>
 {
   bool boolean = true;
   int total_time;
   int time_resting;
   int auxiliar_time;
+  printf("Repartidor %d: Esta en Posicion %d\n", repartidor->id, repartidor->posicion_actual);
   while (boolean) // Esto tiene que ser hasta que el repartidor llegue a la bodega
   {
     connect_sigaction(SIGUSR1, handle_sigusr1);
+    sleep(1);
     int *current_position = malloc(sizeof(int));
     *current_position = repartidor->posicion_actual;
     repartidor->posicion_actual = *current_position + 1;
@@ -65,6 +68,11 @@ void avanzar(Repartidor* repartidor, int position_1, int position_2, int positio
         total_time = auxiliar_time;
         auxiliar_time = 0;
       }
+      else
+      {
+        total_time += 1;
+        printf("Repartidor %d: Avanza a Posicion %d\n", repartidor->id, repartidor->posicion_actual);
+      }
 
        
     }
@@ -78,6 +86,11 @@ void avanzar(Repartidor* repartidor, int position_1, int position_2, int positio
         total_time = auxiliar_time;
         auxiliar_time = 0;
       }
+      else
+      {
+        total_time += 1;
+        printf("Repartidor %d: Avanza a Posicion %d\n", repartidor->id, repartidor->posicion_actual);
+      }
      
     }
     else if (repartidor->posicion_actual == position_3)
@@ -90,26 +103,47 @@ void avanzar(Repartidor* repartidor, int position_1, int position_2, int positio
         total_time = auxiliar_time;
         auxiliar_time = 0;
       }
+      else
+      {
+        total_time += 1;
+        printf("Repartidor %d: Avanza a Posicion %d\n", repartidor->id, repartidor->posicion_actual);
+      }
       
     }
     else
     {
-      printf("Repartidor %d: Posicion %d\n", repartidor->id, repartidor->posicion_actual);
-      sleep(1);
       total_time += 1;
+      printf("Repartidor %d: Avanza a Posicion %d\n", repartidor->id, repartidor->posicion_actual);
     }
   }
 }
 
-int main(int argc, char const *argv[])
+void handle_sigabrt()
 {
-  printf("I'm the REPARTIDOR process and my PID is: %i\n", getpid());
-  Repartidor* repartidor = malloc(sizeof(Repartidor));
-  repartidor->id = atoi(argv[0]);
-  avanzar(repartidor, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
+  printf("Termiando REPARTIDOR %d\n", repartidor->id);
   char string[30];
   sprintf(string, "repartidor_%d.txt", repartidor->id);
   FILE* output = fopen(string, "w");
-  resultados(output, repartidor);
+  resultados(output);
+  kill(getpid(), SIGINT);
+}
+
+int main(int argc, char const *argv[])
+{
+  signal(SIGABRT, handle_sigabrt);
+  printf("I'm the REPARTIDOR process and my PID is: %i\n", getpid());
+  repartidor = malloc(sizeof(Repartidor));
+  repartidor->id = atoi(argv[0]);
+  repartidor->t1 = -1;
+  repartidor->t2 = -1;
+  repartidor->t3 = -1;
+  repartidor->t_bodega = -1;
+  avanzar(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
+  char string[30];
+  sprintf(string, "repartidor_%d.txt", repartidor->id);
+  FILE* output = fopen(string, "w");
+  resultados(output);
   // kill itself
+  kill(getpid(), SIGINT);
+
 }
