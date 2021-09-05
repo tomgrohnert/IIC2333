@@ -47,17 +47,6 @@ void handle_sigabrt_1(int sig)
   kill(delivery_pid,SIGABRT);
 }
 
-void handle_sigabrt_2(int sig)
-{
-  // Debe escribir los resultados en el archivo semaforo_<i>.txt
-}
-
-void handle_sigabrt_3(int sig)
-{
-  // Debe escribir los resultados en el archivo repartidor_<i>.txt
-}
-
-
 // MAIN PROGRAM
 
 int main(int argc, char const *argv[])
@@ -114,7 +103,7 @@ int main(int argc, char const *argv[])
       wait(NULL);
       number_of_deliveries_finished += 1;
     }
-    free(all_deliveries);
+    // free(all_deliveries);
     exit(0);
 
   } 
@@ -158,6 +147,7 @@ int main(int argc, char const *argv[])
             signal(SIGINT, handle_sigint);
             
             waitpid(all_factories[0], NULL, 0);
+            free(all_deliveries);
           }
         }
 
