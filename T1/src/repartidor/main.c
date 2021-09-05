@@ -125,7 +125,7 @@ void handle_sigabrt()
   sprintf(string, "repartidor_%d.txt", repartidor->id);
   FILE* output = fopen(string, "w");
   resultados(output);
-  kill(getpid(), SIGINT);
+  exit(0);
 }
 
 int main(int argc, char const *argv[])
@@ -144,6 +144,6 @@ int main(int argc, char const *argv[])
   FILE* output = fopen(string, "w");
   resultados(output);
   // kill itself
-  kill(getpid(), SIGINT);
+  exit(0);
 
 }

@@ -43,12 +43,22 @@ void handle_sigabrt()
     sprintf(string, "semaforo_%d.txt", semaforo->id);
     FILE* output = fopen(string, "w");
     resultados(output, semaforo->cantidad_de_cambios);
-    kill(getpid(), SIGINT);
+    exit(0);
+}
+
+void handle_sigint()
+{
+    char string[30];
+    sprintf(string, "semaforo_%d.txt", semaforo->id);
+    FILE* output = fopen(string, "w");
+    resultados(output, semaforo->cantidad_de_cambios);
+    exit(0);
 }
 
 int main(int argc, char const *argv[])
 {
     signal(SIGABRT, handle_sigabrt);
+    signal(SIGINT, handle_sigint);
     printf("I'm the SEMAFORO process and my PID is: %i\n", getpid());
     semaforo = malloc(sizeof(Semaforo));
     semaforo->id = atoi(argv[0]);
@@ -60,5 +70,5 @@ int main(int argc, char const *argv[])
     sprintf(string, "semaforo_%d.txt", semaforo->id);
     FILE* output = fopen(string, "w");
     resultados(output,semaforo->cantidad_de_cambios);
-    kill(getpid(), SIGINT);
+    exit(0);
 }
