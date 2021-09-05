@@ -25,7 +25,7 @@ int cambio_de_color(Semaforo* semaforo) // Tiene que recibir la señal de que to
       *number_of_changes = semaforo->cantidad_de_cambios;
       semaforo->cantidad_de_cambios = *number_of_changes + 1;
       free(number_of_changes);
-      send_signal_with_int(itoa(semaforo->parent), semaforo->id);
+      send_signal_with_int(semaforo->parent, semaforo->id);
     }
     return semaforo->cantidad_de_cambios;
 }
@@ -45,6 +45,8 @@ int main(int argc, char const *argv[])
     semaforo->parent = atoi(argv[2]);
     semaforo->color_actual = 1;
     int counter = cambio_de_color(semaforo);
-    FILE* output = fopen("semaforo.txt", "w");
+    char string[30];
+    sprintf(string, "semaforo_%d.txt", semaforo->id);
+    FILE* output = fopen(string, "w");
     resultados(output,counter);
 }
