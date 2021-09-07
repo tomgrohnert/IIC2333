@@ -62,11 +62,10 @@ int main(int argc, char const *argv[])
 {
   printf("I'm the DCCUBER process and my PID is: %i\n", getpid());
 
-  char *filename = "input.txt";
+  // char *filename = "input.txt";
+  char *filename = argv[1];
   InputFile *data_in = read_file(filename);
   int time_of_creation;
-  int status;  
-  int retval;
   number_of_deliveries = atoi(data_in->lines[1][1]);
   time_of_creation = atoi(data_in->lines[1][0]);
   all_deliveries = malloc(number_of_deliveries*sizeof(int));
