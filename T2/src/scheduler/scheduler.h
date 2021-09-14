@@ -9,7 +9,8 @@ typedef struct process
     int n_burst;
     int* bursts;
     int index; // en cual cpu burst esta
-    int running_time; 
+    int running_time;
+    int waiting_time;
 } Process;
 
 typedef struct queue
