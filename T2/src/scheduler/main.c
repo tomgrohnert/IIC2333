@@ -100,7 +100,7 @@ int main(int argc, char **argv)
     //     f += 1;
     //   }
     // }
-    // int q = quantum(100,queue->factories[process->factory_id],f);
+    // int quantum_generated = quantum(100,queue->factories[process->factory_id],f);
     if (occupied == true)
     {
       if (process->bursts[process->index] == process->running_time)
@@ -113,9 +113,9 @@ int main(int argc, char **argv)
           // Set running_time to 0 for next burst
           process->running_time = 0;
           // Low counter
-          
+          counter -= 1;
           // Need to update queue
-          rearrange(queue->process_line, 2);
+          rearrange(queue->process_line, counter);
         }
         else
         {
@@ -127,9 +127,9 @@ int main(int argc, char **argv)
           process->running_time = 0;
           printf("[t = %d] El proceso %s ha pasado a estado WAITING\n", time, process->name);
           // Need to update queue
-          rearrange(queue->process_line,2);
+          rearrange(queue->process_line, counter - 1);
           // Put the recent process at the end
-          queue->process_line[counter - 1] = process
+          queue->process_line[counter - 1] = process;
         }
 
         // CPU is NOT occupied
@@ -140,25 +140,25 @@ int main(int argc, char **argv)
         time += 1;
       }
     }
-    else if (process->bursts[process->index] < q)
+    else if (process->bursts[process->index] < quantum_generated)
     {
-      q = process->bursts[process->index];
+      quantum_generated = process->bursts[process->index];
       process->index += 1; 
     }
-    else if (process->bursts[process->index] > q)
+    else if (process->bursts[process->index] > quantum_generated)
     {
-      // Guardar el tiempo restante (process->bursts[process->index] - q)
+      // Guardar el tiempo restante (process->bursts[process->index] - quantum_generated)
       process->index += 1; 
     }
-    printf("Quantum: %d\n",q);
-    for (int j = 0; j < q; j++)
+    printf("Quantum: %d\n",quantum_generated);
+    for (int j = 0; j < quantum_generated; j++)
     {
       process->state = 1;
       printf("[t = %d] El proceso %s ha pasado a estado RUNNING\n", time, process->name);
       sleep(1);
       time += 1;
     }
-    process->running_time += q;
+    process->running_time += quantum_generated;
     for (int j = 0; j < process->bursts[process->index]; j++)
     {
       process->state = 2;
