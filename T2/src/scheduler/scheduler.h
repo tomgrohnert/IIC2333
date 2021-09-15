@@ -24,3 +24,5 @@ int quantum(int Q, int n, int f);
 void rearrange(Process** queue, int limit);
 
 void sort_input(Process** input_list);
+
+void up_the_queue(Process** queue, int limit);

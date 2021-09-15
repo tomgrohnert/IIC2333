@@ -17,9 +17,15 @@ void rearrange(Process** queue, int limit)
 {
   for (int i = 1; i <= limit; i++)
   {
-    //Process* aux = queue[i-1];
     queue[i-1] = queue[i];
-    //queue[i] = aux;
+  }
+}
+
+void up_the_queue(Process** queue, int limit)
+{
+  for (int i = 0; i < limit; i++)
+  {
+    queue[i+1] = queue[i];
   }
 }
 
@@ -186,6 +192,8 @@ int main(int argc, char **argv)
           {
             process = queue->process_line[i];
             process->state = 1;
+            // Adjust the queue so it can be rearrange after
+            up_the_queue(queue->process_line, i);
             printf("[t = %d] El proceso %s ha pasado a estado RUNNING\n", time, process->name);
             quantum_generated = quantum(100,queue->factories[process->factory_id],f);
             process_found = true;
