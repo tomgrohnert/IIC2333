@@ -15,7 +15,7 @@ int quantum(int Q, int n, int f)
 
 void rearrange(Process** queue, int limit)
 {
-  for (int i = 1; i < limit; i++)
+  for (int i = 1; i <= limit; i++)
   {
     //Process* aux = queue[i-1];
     queue[i-1] = queue[i];
@@ -23,7 +23,7 @@ void rearrange(Process** queue, int limit)
   }
 }
 
-Process** sort_input(Process** input_list)
+void sort_input(Process** input_list)
 {
 
 }
@@ -32,7 +32,6 @@ int main(int argc, char **argv)
 {
 
   // Variables of the main CPU
-  Process* aux;
   int quantum_generated;
   bool occupied = false;
   printf("Hello T2!\n");
@@ -86,6 +85,7 @@ int main(int argc, char **argv)
   printf("Contador %d\n", counter); // Para saber que proceso hay que agregar a la cola 
   int time = 0;
   bool boolean = true;
+  Process* process;
   while (boolean) // While existan procesos 
   {
     int f = 0;
@@ -96,20 +96,21 @@ int main(int argc, char **argv)
         f += 1;
       }
     }
-    // int quantum_generated = quantum(100,queue->factories[process->factory_id],f);
+    // int quantum_generated = quantum(10,queue->factories[process->factory_id],f);
     if (occupied == true)
     {
       // Completed burst
       if (process->bursts[process->index] == process->running_time)
       {
         // If finished
-        if (process->index == process->n_burst)
+        if (process->index + 1 == (2*process->n_burst - 1))
         {
           process->state = 3;
           // Time to be waiting
           process->waiting_time = 0;
           // Set running_time to 0 for next burst
           process->running_time = 0;
+          printf("[t = %d] El proceso %s ha pasado a estado FINISHED\n", time, process->name);
           // Low counter
           counter -= 1;
           // Need to update queue
@@ -120,8 +121,12 @@ int main(int argc, char **argv)
         {
           // Change state to WAITING
           process->state = 2;
+          // Get the index of the waiting time
+          process->index += 1;
           // Time to be waiting
-          process->waiting_time = 0;
+          process->waiting_time = process->bursts[process->index];
+          // Get the index for the next CPU burst
+          process->index += 1;
           // Set running_time to 0 for next burst
           process->running_time = 0;
           printf("[t = %d] El proceso %s ha pasado a estado WAITING\n", time, process->name);
@@ -133,11 +138,10 @@ int main(int argc, char **argv)
 
         // CPU is NOT occupied
         occupied = false;
-        // Need to update queue
-        rearrange(queue->process_line,2);
         sleep(1);
         time += 1;
-      } else
+      } 
+      else
       {
         // If quantum_generated is over
         if (quantum_generated == process->running_time)
@@ -157,20 +161,21 @@ int main(int argc, char **argv)
           {
             if (queue->process_line[i]->state == 0)
             {
-              process = queue->process_line[i]
+              process = queue->process_line[i];
               quantum_generated = quantum(100,queue->factories[process->factory_id],f);
+              break;
             }
           }
-        } else
+        } 
+        else
         {
           sleep(1);
           time += 1;
           process->running_time += 1;
-
         }
-
       }
-    } else
+    } 
+    else
     {
       bool process_found = false;
       while(!process_found)
@@ -179,29 +184,31 @@ int main(int argc, char **argv)
         {
           if (queue->process_line[i]->state == 0)
           {
-            process = queue->process_line[i]
+            process = queue->process_line[i];
             process->state = 1;
             printf("[t = %d] El proceso %s ha pasado a estado RUNNING\n", time, process->name);
             quantum_generated = quantum(100,queue->factories[process->factory_id],f);
             process_found = true;
             occupied = true;
+            break;
           }
         }
         // If there is no process to run
         if (!process_found)
         {
           sleep(1);
-          timer += 1;
+          time += 1;
           // Iterate to check if there is any process waiting to substract that time
           for (int i = 0; i < counter; i++)
           {
             if (queue->process_line[i]->state == 2)
             {
               queue->process_line[i]->waiting_time -= 1;
-              // If the process waiting time is up then is RAEADY
+              // If the process waiting time is up then is READY
               if (queue->process_line[i]->waiting_time == 0)
               {
                 queue->process_line[i]->state = 0;
+                printf("[t = %d] El proceso %s ha pasado a estado READY\n", time, queue->process_line[i]->name);
               }
             }
           }
@@ -211,51 +218,4 @@ int main(int argc, char **argv)
     }
   }
 
-
-
-
-
-
-
-///////////////////// gronert //
-    }
-    else if (process->bursts[process->index] < quantum_generated)
-    {
-      quantum_generated = process->bursts[process->index];
-      process->index += 1; 
-    }
-    else if (process->bursts[process->index] > quantum_generated)
-    {
-      // Guardar el tiempo restante (process->bursts[process->index] - quantum_generated)
-      process->index += 1; 
-    }
-    printf("Quantum: %d\n",quantum_generated);
-    for (int j = 0; j < quantum_generated; j++)
-    {
-      process->state = 1;
-      printf("[t = %d] El proceso %s ha pasado a estado RUNNING\n", time, process->name);
-      sleep(1);
-      time += 1;
-    }
-    process->running_time += quantum_generated;
-    for (int j = 0; j < process->bursts[process->index]; j++)
-    {
-      process->state = 2;
-      printf("[t = %d] El proceso %s ha pasado a estado WAITING\n", time, process->name);
-      sleep(1);
-      time += 1;
-    }
-    process->index += 1; 
-    if (process->index > (process->n_burst*2 - 1))
-    {
-      process->state = 3;
-      boolean = false;
-      printf("[t = %d] El proceso %s ha pasado a estado FINISHED\n", time, process->name);
-    }
-    else
-    {
-      printf("[t = %d] El proceso %s ha pasado a estado READY\n", time, process->name);
-    }
-    rearrange(queue->process_line,2);
-  }
 }

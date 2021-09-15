@@ -22,3 +22,5 @@ typedef struct queue
 int quantum(int Q, int n, int f);
 
 void rearrange(Process** queue, int limit);
+
+void sort_input(Process** input_list);
