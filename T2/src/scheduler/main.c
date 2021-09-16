@@ -15,21 +15,38 @@ int quantum(int Q, int n, int f)
 
 void rearrange(Process** queue, int limit)
 {
-  for (int i = 1; i < limit; i++)
+  for (int i = 1; i <= limit; i++)
   {
-    Process* aux = queue[i-1];
     queue[i-1] = queue[i];
-    queue[i] = aux;
   }
+}
+
+void up_the_queue(Process** queue, int limit)
+{
+  for (int i = 0; i < limit; i++)
+  {
+    queue[i+1] = queue[i];
+  }
+}
+
+void sort_input(Process** input_list)
+{
+
 }
 
 int main(int argc, char **argv)
 {
+
+  // Variables of the main CPU
+  int quantum_generated;
+  bool occupied = false;
   printf("Hello T2!\n");
+  
 
   InputFile *file = read_file("input.txt");
 
   printf("Reading file of length %i:\n", file->len);
+  // Por que esto? no estarias contando tambien aca la primera linea?
   Process** all_processes = malloc((file->len)*sizeof(Process));
   Queue* queue = malloc(sizeof(Queue));
   Process** process_line = malloc(8*sizeof(Process));
@@ -38,7 +55,7 @@ int main(int argc, char **argv)
   queue->factories[1] = 0;
   queue->factories[2] = 0;
   queue->factories[3] = 0;
-  int contador;
+  int counter;
   for (int i = 0; i < file->len; i++)
   {
     char **line = file->lines[i];
@@ -51,7 +68,7 @@ int main(int argc, char **argv)
     process->factory_id = atoi(line[2]);
     process->state = 0;
     process->n_burst = atoi(line[3]);
-    process->pid = atoi(line[1]); 
+    process->initial_time = atoi(line[1]); 
     int* bursts = malloc((process->n_burst*2 - 1)*sizeof(int));
     process->bursts = bursts;
     process->index = 0;
@@ -68,17 +85,15 @@ int main(int argc, char **argv)
     {
       queue->process_line[i] = process;
       queue->factories[process->factory_id] += 1;
-      contador = i + 1;
+      counter = i + 1;
     }
   }
-  printf("Contador %d\n", contador); // Para saber que proceso hay que agregar a la cola 
+  printf("Contador %d\n", counter); // Para saber que proceso hay que agregar a la cola 
   int time = 0;
   bool boolean = true;
+  Process* process;
   while (boolean) // While existan procesos 
   {
-    Process* process = queue->process_line[0];
-    printf("[t = %d] El proceso %s ha sido creado\n", time, process->name);
-    printf("[t = %d] El proceso %s ha pasado a estado READY\n", time, process->name);
     int f = 0;
     for (int i = 0; i < 4; i++)
     {
@@ -87,44 +102,138 @@ int main(int argc, char **argv)
         f += 1;
       }
     }
-    int q = quantum(100,queue->factories[process->factory_id],f);
-    if (process->bursts[process->index] < q)
+    // int quantum_generated = quantum(10,queue->factories[process->factory_id],f);
+    if (occupied == true)
     {
-      q = process->bursts[process->index];
-      process->index += 1; 
-    }
-    else if (process->bursts[process->index] > q)
-    {
-      // Guardar el tiempo restante (process->bursts[process->index] - q)
-      process->index += 1; 
-    }
-    printf("Quantum: %d\n",q);
-    for (int j = 0; j < q; j++)
-    {
-      process->state = 1;
-      printf("[t = %d] El proceso %s ha pasado a estado RUNNING\n", time, process->name);
-      sleep(1);
-      time += 1;
-    }
-    process->running_time += q;
-    for (int j = 0; j < process->bursts[process->index]; j++)
-    {
-      process->state = 2;
-      printf("[t = %d] El proceso %s ha pasado a estado WAITING\n", time, process->name);
-      sleep(1);
-      time += 1;
-    }
-    process->index += 1; 
-    if (process->index > (process->n_burst*2 - 1))
-    {
-      process->state = 3;
-      boolean = false;
-      printf("[t = %d] El proceso %s ha pasado a estado FINISHED\n", time, process->name);
-    }
+      // Completed burst
+      if (process->bursts[process->index] == process->running_time)
+      {
+        // If finished
+        if (process->index + 1 == (2*process->n_burst - 1))
+        {
+          process->state = 3;
+          // Time to be waiting
+          process->waiting_time = 0;
+          // Set running_time to 0 for next burst
+          process->running_time = 0;
+          printf("[t = %d] El proceso %s ha pasado a estado FINISHED\n", time, process->name);
+          // Low counter
+          counter -= 1;
+          // If all process have finished
+          if (counter == 0)
+          {
+            boolean = false;
+            break;
+          }
+          // Need to update queue
+          rearrange(queue->process_line, counter);
+        }
+        // If goes back to queue
+        else
+        {
+          // Change state to WAITING
+          process->state = 2;
+          // Get the index of the waiting time
+          process->index += 1;
+          // Time to be waiting
+          process->waiting_time = process->bursts[process->index];
+          // Get the index for the next CPU burst
+          process->index += 1;
+          // Set running_time to 0 for next burst
+          process->running_time = 0;
+          printf("[t = %d] El proceso %s ha pasado a estado WAITING\n", time, process->name);
+          // Need to update queue
+          rearrange(queue->process_line, counter - 1);
+          // Put the recent process at the end
+          queue->process_line[counter - 1] = process;
+        }
+
+        // CPU is NOT occupied
+        occupied = false;
+        sleep(1);
+        time += 1;
+      } 
+      else
+      {
+        // If quantum_generated is over
+        if (quantum_generated == process->running_time)
+        {
+          // Change state to READY
+          process->state = 0;
+          // Time to be waiting
+          process->waiting_time = 0;
+          // Set running_time to 0 for next burst
+          process->running_time = 0;
+          printf("[t = %d] El proceso %s ha pasado a estado READY\n", time, process->name);
+          // Need to update queue
+          rearrange(queue->process_line, counter - 1);
+          // Put the recent process at the end
+          queue->process_line[counter - 1] = process;
+          for (int i = 0; i < counter; i++)
+          {
+            if (queue->process_line[i]->state == 0)
+            {
+              process = queue->process_line[i];
+              quantum_generated = quantum(100,queue->factories[process->factory_id],f);
+              break;
+            }
+          }
+        } 
+        else
+        {
+          sleep(1);
+          time += 1;
+          process->running_time += 1;
+        }
+      }
+    } 
     else
     {
-      printf("[t = %d] El proceso %s ha pasado a estado READY\n", time, process->name);
+      bool process_found = false;
+      while(!process_found)
+      {
+        for (int i = 0; i < counter; i++)
+        {
+          if (queue->process_line[i]->state == 0)
+          {
+            process = queue->process_line[i];
+            process->state = 1;
+            // Adjust the queue so it can be rearrange after
+            up_the_queue(queue->process_line, i);
+            if (process->index == 0 && process->running_time == 0)
+            {
+              printf("[t = %d] El proceso %s ha sido CREADO\n", time, process->name);
+            }
+            printf("[t = %d] El proceso %s ha pasado a estado RUNNING\n", time, process->name);
+            quantum_generated = quantum(100,queue->factories[process->factory_id],f);
+            process_found = true;
+            occupied = true;
+            break;
+          }
+        }
+        // If there is no process to run
+        if (!process_found)
+        {
+          sleep(1);
+          time += 1;
+          // Iterate to check if there is any process waiting to substract that time
+          for (int i = 0; i < counter; i++)
+          {
+            if (queue->process_line[i]->state == 2)
+            {
+              queue->process_line[i]->waiting_time -= 1;
+              // If the process waiting time is up then is READY
+              if (queue->process_line[i]->waiting_time == 0)
+              {
+                queue->process_line[i]->state = 0;
+                printf("[t = %d] El proceso %s ha pasado a estado READY\n", time, queue->process_line[i]->name);
+              }
+            }
+          }
+
+        }
+      }
     }
-    rearrange(queue->process_line,2);
   }
+
 }
