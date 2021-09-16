@@ -2,14 +2,15 @@
 
 typedef struct process
 {
-    int pid;
+    int initial_time;
     char* name;
     int factory_id;
     int state; // State -> Ready = 0, Running = 1, Waiting = 2, Finished = 3
     int n_burst;
     int* bursts;
     int index; // en cual cpu burst esta
-    int running_time; 
+    int running_time;
+    int waiting_time;
 } Process;
 
 typedef struct queue
@@ -21,3 +22,7 @@ typedef struct queue
 int quantum(int Q, int n, int f);
 
 void rearrange(Process** queue, int limit);
+
+void sort_input(Process** input_list);
+
+void up_the_queue(Process** queue, int limit);
