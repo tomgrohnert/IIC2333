@@ -95,6 +95,7 @@ int main(int argc, char **argv)
   while (boolean) // While existan procesos 
   {
     int f = 0;
+    //rintf("Time %d, %d\n" , time, occupied);
     for (int i = 0; i < 4; i++)
     {
       if (queue->factories[i] > 0)
@@ -106,6 +107,7 @@ int main(int argc, char **argv)
     if (occupied == true)
     {
       // Completed burst
+      //printf("veamos %d, %d\n", process->bursts[process->index], process->running_time);
       if (process->bursts[process->index] == process->running_time)
       {
         // If finished
@@ -190,74 +192,132 @@ int main(int argc, char **argv)
             }
           }
         } 
-        else
-        {
-          sleep(1);
-          time += 1;
-          process->running_time += 1;
-        }
+       // else
+     //   {
+      //    sleep(1);
+      //    time += 1;
+      //    process->running_time += 1;
+       // }
       }
-      for (int i = 0; i < counter; i++)
-      {
-        if (queue->process_line[i]->state == 2)
-        {
-          queue->process_line[i]->waiting_time -= 1;
-          // If the process waiting time is up then is READY
-          if (queue->process_line[i]->waiting_time == 0)
-          {
-            queue->process_line[i]->state = 0;
-            printf("[t = %d] El proceso %s ha pasado a estado READY\n", time, queue->process_line[i]->name);
-          }
-        }
-      }
+     // for (int i = 0; i < counter; i++)
+    //  {
+    //    if (queue->process_line[i]->state == 2)
+    //    {
+       //   queue->process_line[i]->waiting_time -= 1;
+     //     // If the process waiting time is up then is READY
+     //     if (queue->process_line[i]->waiting_time == 0)
+     //     {
+     //       queue->process_line[i]->state = 0;
+        //    printf("[t = %d] El proceso %s ha pasado a estado READY\n", time, queue->process_line[i]->name);
+       //   }
+       // }
+     // }
+     process->running_time += 1;
     } 
-    else
-    {
-      bool process_found = false;
-      while(!process_found)
-      {
-        for (int i = 0; i < counter; i++)
+    //else
+    //{
+      //bool process_found = false;
+      //while(!process_found)
+      //{
+     //   for (int i = 0; i < counter; i++)
+     //   {
+       //   if (queue->process_line[i]->state == 0 && queue->process_line[i]->initial_time <= time)
+        //  {
+        //    process = queue->process_line[i];
+        //    process->state = 1;
+            // Adjust the queue so it can be rearrange after
+        //    up_the_queue(queue->process_line, i);
+         //   if (process->index == 0 && process->running_time == 0)
+         //   {
+         //     printf("[t = %d] El proceso %s ha sido CREADO\n", time, process->name);
+         //   }
+          //  printf("[t = %d] El proceso %s ha pasado a estado RUNNING\n", time, process->name);
+          //  quantum_generated = quantum(100,queue->factories[process->factory_id],f);
+            //process_found = true;
+          //  occupied = true;
+            //break;
+         // }
+        // if (queue->process_line[i]->state == 2)
+           // {
+           //   queue->process_line[i]->waiting_time -= 1;
+              // If the process waiting time is up then is READY
+            //  if (queue->process_line[i]->waiting_time == 0)
+             //// {
+             //   queue->process_line[i]->state = 0;
+             //   printf("[t = %d] El proceso %s ha pasado a estado READY\n", time, queue->process_line[i]->name);
+             // }
+            //}
+        //}
+        // If there is no process to run
+        //if (!process_found)
+        //{
+          //sleep(1);
+          //time += 1;
+          // Iterate to check if there is any process waiting to substract that time
+          //for (int i = 0; i < counter; i++)
+          //{
+           // if (queue->process_line[i]->state == 2)
+            //{
+              //queue->process_line[i]->waiting_time -= 1;
+              // If the process waiting time is up then is READY
+              //if (queue->process_line[i]->waiting_time == 0)
+              //{
+                //queue->process_line[i]->state = 0;
+                //printf("[t = %d] El proceso %s ha pasado a estado READY\n", time, queue->process_line[i]->name);
+             // }
+           // }
+         // }
+
+        //}
+      //}
+    //}
+    for (int i = 0; i < counter; i++)
         {
-          if (queue->process_line[i]->state == 0 && queue->process_line[i]->initial_time <= time)
+          if (queue->process_line[i]->state == 0 && queue->process_line[i]->initial_time <= time && occupied == false)
           {
             process = queue->process_line[i];
             process->state = 1;
+            process->running_time = 1;
             // Adjust the queue so it can be rearrange after
             up_the_queue(queue->process_line, i);
-            if (process->index == 0 && process->running_time == 0)
+            if (process->index == 0 && process->running_time == 1)
             {
               printf("[t = %d] El proceso %s ha sido CREADO\n", time, process->name);
             }
             printf("[t = %d] El proceso %s ha pasado a estado RUNNING\n", time, process->name);
             quantum_generated = quantum(100,queue->factories[process->factory_id],f);
-            process_found = true;
+            //process_found = true;
             occupied = true;
-            break;
+            //break;
           }
+         // {
+            //if (queue->process_line[i]->state == 2)
+             // {
+              //  queue->process_line[i]->waiting_time -= 1;
+                // If the process waiting time is up then is READY
+              //  if (queue->process_line[i]->waiting_time == 0)
+              //  {
+              //    queue->process_line[i]->state = 0;
+              //    printf("[t = %d] El proceso %s ha pasado a estado READY\n", time, queue->process_line[i]->name);
+              //  }
+              //}
+          //}
         }
-        // If there is no process to run
-        if (!process_found)
+        sleep(1);
+        time += 1;
+        for (int i = 0; i < counter; i++)
         {
-          sleep(1);
-          time += 1;
-          // Iterate to check if there is any process waiting to substract that time
-          for (int i = 0; i < counter; i++)
-          {
-            if (queue->process_line[i]->state == 2)
-            {
-              queue->process_line[i]->waiting_time -= 1;
-              // If the process waiting time is up then is READY
-              if (queue->process_line[i]->waiting_time == 0)
+          if (queue->process_line[i]->state == 2)
               {
-                queue->process_line[i]->state = 0;
-                printf("[t = %d] El proceso %s ha pasado a estado READY\n", time, queue->process_line[i]->name);
+                queue->process_line[i]->waiting_time -= 1;
+                // If the process waiting time is up then is READY
+                if (queue->process_line[i]->waiting_time == 0)
+                {
+                  queue->process_line[i]->state = 0;
+                  printf("[t = %d] El proceso %s ha pasado a estado READY\n", time, queue->process_line[i]->name);
+                }
               }
-            }
-          }
-
         }
-      }
-    }
   }
 
 }
