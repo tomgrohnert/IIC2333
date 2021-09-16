@@ -2,7 +2,7 @@
 
 typedef struct process
 {
-    int pid;
+    int initial_time;
     char* name;
     int factory_id;
     int state; // State -> Ready = 0, Running = 1, Waiting = 2, Finished = 3

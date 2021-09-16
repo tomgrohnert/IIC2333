@@ -68,7 +68,7 @@ int main(int argc, char **argv)
     process->factory_id = atoi(line[2]);
     process->state = 0;
     process->n_burst = atoi(line[3]);
-    process->pid = atoi(line[1]); 
+    process->initial_time = atoi(line[1]); 
     int* bursts = malloc((process->n_burst*2 - 1)*sizeof(int));
     process->bursts = bursts;
     process->index = 0;
@@ -119,6 +119,12 @@ int main(int argc, char **argv)
           printf("[t = %d] El proceso %s ha pasado a estado FINISHED\n", time, process->name);
           // Low counter
           counter -= 1;
+          // If all process have finished
+          if (counter == 0)
+          {
+            boolean = false;
+            break;
+          }
           // Need to update queue
           rearrange(queue->process_line, counter);
         }
@@ -194,6 +200,10 @@ int main(int argc, char **argv)
             process->state = 1;
             // Adjust the queue so it can be rearrange after
             up_the_queue(queue->process_line, i);
+            if (process->index == 0 && process->running_time == 0)
+            {
+              printf("[t = %d] El proceso %s ha sido CREADO\n", time, process->name);
+            }
             printf("[t = %d] El proceso %s ha pasado a estado RUNNING\n", time, process->name);
             quantum_generated = quantum(100,queue->factories[process->factory_id],f);
             process_found = true;
