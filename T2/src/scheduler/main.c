@@ -339,12 +339,17 @@ int main(int argc, char **argv)
           if (queue->process_line[i]->state == 2)
               {
                 queue->process_line[i]->waiting_time -= 1;
+                queue->process_line[i]->waiting_stat += 1;
                 // If the process waiting time is up then is READY
                 if (queue->process_line[i]->waiting_time == 0)
                 {
                   queue->process_line[i]->state = 0;
                   printf("[t = %d] El proceso %s ha pasado a estado READY\n", time, queue->process_line[i]->name);
                 }
+              }
+          if (queue->process_line[i]->state == 0)
+              {
+                queue->process_line[i]->waiting_stat += 1;
               }
         }
   }
