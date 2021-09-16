@@ -142,16 +142,27 @@ int main(int argc, char **argv)
           // Set running_time to 0 for next burst
           process->running_time = 0;
           printf("[t = %d] El proceso %s ha pasado a estado WAITING\n", time, process->name);
+          // CPU is NOT occupied
+          occupied = false;
           // Need to update queue
           rearrange(queue->process_line, counter - 1);
           // Put the recent process at the end
           queue->process_line[counter - 1] = process;
+          // Get new process at the same time
+          for (int i = 0; i < counter; i++)
+          {
+            if (queue->process_line[i]->state == 0)
+            {
+              process = queue->process_line[i];
+              quantum_generated = quantum(100,queue->factories[process->factory_id],f);
+              // CPU IS occupied
+              occupied = false;
+              break;
+            }
+          }
         }
-
-        // CPU is NOT occupied
-        occupied = false;
-        sleep(1);
-        time += 1;
+        //sleep(1);
+        //time += 1;
       } 
       else
       {
@@ -186,6 +197,19 @@ int main(int argc, char **argv)
           process->running_time += 1;
         }
       }
+      for (int i = 0; i < counter; i++)
+      {
+        if (queue->process_line[i]->state == 2)
+        {
+          queue->process_line[i]->waiting_time -= 1;
+          // If the process waiting time is up then is READY
+          if (queue->process_line[i]->waiting_time == 0)
+          {
+            queue->process_line[i]->state = 0;
+            printf("[t = %d] El proceso %s ha pasado a estado READY\n", time, queue->process_line[i]->name);
+          }
+        }
+      }
     } 
     else
     {
@@ -194,7 +218,7 @@ int main(int argc, char **argv)
       {
         for (int i = 0; i < counter; i++)
         {
-          if (queue->process_line[i]->state == 0)
+          if (queue->process_line[i]->state == 0 && queue->process_line[i]->initial_time <= time)
           {
             process = queue->process_line[i];
             process->state = 1;
