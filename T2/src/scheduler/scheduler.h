@@ -11,6 +11,13 @@ typedef struct process
     int index; // en cual cpu burst esta
     int running_time;
     int waiting_time;
+    //Statistics
+    int times_cpu;
+    int interruptions;
+    int turnaround_time;
+    int response_time;
+    int waiting_stat;
+    int position;
 } Process;
 
 typedef struct queue
@@ -26,3 +33,5 @@ void rearrange(Process** queue, int limit);
 void sort_input(Process** input_list);
 
 void up_the_queue(Process** queue, int limit);
+
+void write_results(Process** process_completed, FILE* output_file, int number_process);
