@@ -354,4 +354,17 @@ int main(int argc, char **argv)
         }
   }
   write_results(process_completed, output_file, file->len);
+  for (int i = 0; i < file->len ; i ++)
+  {
+    Process* proces = all_processes[i];
+    int* burst = proces->bursts;
+    free(burst);
+    free(proces);
+  }
+
+
+  free(process_completed);
+  free(queue->process_line);
+  free(queue);
+  free(all_processes);
 }
