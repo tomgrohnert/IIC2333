@@ -119,6 +119,8 @@ int main(int argc, char **argv)
           // Set running_time to 0 for next burst
           process->running_time = 0;
           printf("[t = %d] El proceso %s ha pasado a estado FINISHED\n", time, process->name);
+          // CPU NOT occupied
+          occupied = false;
           // Low counter
           counter -= 1;
           // If all process have finished
