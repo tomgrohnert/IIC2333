@@ -64,8 +64,7 @@ devuelta por el DNS. Este paquete es el cual sirve para enviar los datos solicit
 que en su contenido esta la información solicitada por el laptop del cliente.
 
 - Paquete TCP: El paquete TCP es el cual se genera desde el laptop que generó el request y se manda hacia el servidor del servicio que se esta solicitando con la IP
-devuelta por el DNS. Este paquete es sobre el protocolo de conexión antes de enviar los paquetes de datos. Aca contiene el tamaño máximo de segmento, núm
-ero de secuencia además cuentan bytes en la secuencia. ACK contiene el sequence number del siguiente byte que se espera. 
+devuelta por el DNS. Este paquete es sobre el protocolo de conexión antes de enviar los paquetes de datos. Aca contiene el tamaño máximo de segmento, número de secuencia además cuentan bytes en la secuencia. ACK contiene el sequence number del siguiente byte que se espera. 
 
 
 - Paquete DNS: El paquete DNS es el cual se genera desde el laptop que generó el request y se manda hacia el servidor DNS en busca del IP asociado a la url con la cual
@@ -80,6 +79,8 @@ lo que trae en otras palabras son textos que le dicen a la IP de origen si es qu
 de ellas. En este caso aparecen cuando hayan Switches en alguna subred. 
 
 R3:
+
+Para esta última parte iremos presentando los paquetes en el orden correcto en el cual ellos aparecen:
 
 - Paquete ICMP: Va desde el computador que inicia el request en dirección a el router Gateway para luego irse a la red. De esa forma pasa por el router central para ir en dirección a la subred indicada que sería donde se contiene el servidor DNS. De esta forma este paquete luego pasa por el router Gateway de esta subred y llega hasta el servidor. Como respuesta este paquete hace el mismo viaje de vuelta.
 
